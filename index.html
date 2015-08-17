@@ -1,5 +1,6 @@
 <head>
   <script src='three.js'></script>
+  <script src='fly.js'></script>
   <script>
       var scene, camera, renderer;
       var count = 300;
@@ -7,6 +8,8 @@
       var geometries =[],
           materials = [],
           meshes = [];
+      var controls;
+      var clock = new THREE.Clock();
 
       function applyToAll(callback){
         for ( var i = 0; i < count; i ++ ) {
@@ -19,6 +22,14 @@
 
           camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
           camera.position.z = 500;
+
+          controls = new THREE.FlyControls( camera );
+
+          controls.movementSpeed = 2500;
+          controls.rollSpeed = Math.PI / 6;
+          controls.autoForward = false;
+          controls.dragToLook = false
+
           for ( var i = 0; i < count; i ++ ) {
             geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
             geometries.push(geometry);
@@ -66,6 +77,9 @@
       }
 
       function animate() {
+          var delta = clock.getDelta();
+
+          controls.update( delta );
 
           requestAnimationFrame( animate );
 
