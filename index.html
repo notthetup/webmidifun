@@ -1,0 +1,35 @@
+
+<script type="text/javascript">
+    window.addEventListener('load', function() {
+      // patch up prefixes
+
+    if (navigator.requestMIDIAccess){
+      navigator.requestMIDIAccess().then( onMIDIInit, onMIDIReject );
+    }
+    else{
+      alert("No MIDI support present in your browser.  You're gonna have a bad time.")
+    }
+
+    function onMIDIInit(midi) {
+      midiAccess = midi;
+
+      var haveAtLeastOneDevice=false;
+      var inputs=midiAccess.inputs.values();
+      for ( var input = inputs.next(); input && !input.done; input = inputs.next()) {
+        input.value.onmidimessage = MIDIMessageEventHandler;
+        haveAtLeastOneDevice = true;
+      }
+      if (!haveAtLeastOneDevice)
+        alert("No MIDI input devices present.  You're gonna have a bad time.");
+    }
+
+    function onMIDIReject(err) {
+      alert("The MIDI system failed to start.  You're gonna have a bad time.");
+    }
+
+    function MIDIMessageEventHandler(event) {
+      console.log(event.data[1],event.data[2]);
+    }
+  });
+
+</script>
