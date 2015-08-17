@@ -2,20 +2,39 @@
   <script src='three.js'></script>
   <script>
       var scene, camera, renderer;
+      var count = 300;
       var geometry, material, mesh;
+      var geometries =[],
+          materials = [],
+          meshes = [];
+
+      function applyToAll(callback){
+        for ( var i = 0; i < count; i ++ ) {
+          callback(i)
+        }
+      }
 
       function init() {
           scene = new THREE.Scene();
 
           camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
           camera.position.z = 500;
+          for ( var i = 0; i < count; i ++ ) {
+            geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
+            geometries.push(geometry);
 
-          geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
+            material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
+            materials.push(material)
 
-          material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
+            mesh = new THREE.Mesh( geometry, material );
 
-          mesh = new THREE.Mesh( geometry, material );
-          scene.add( mesh );
+            mesh.position.x = 8000 * ( 2.0 * Math.random() - 1.0 );
+            mesh.position.y = 8000 * ( 2.0 * Math.random() - 1.0 );
+            mesh.position.z = 8000 * ( 2.0 * Math.random() - 1.0 );
+            meshes.push(mesh);
+
+            scene.add( mesh );
+          }
 
           renderer = new THREE.WebGLRenderer();
           renderer.setSize( window.innerWidth, window.innerHeight );
@@ -91,29 +110,50 @@
         console.log(event.data[1],event.data[2]);
         switch(event.data[1]) {
           case 16:
-            mesh.rotation.x = event.data[2]/127 * 2 * Math.PI
+            applyToAll(function(i){
+              meshes[i].rotation.x = event.data[2]/127 * 2 * Math.PI
+            });
             break;
           case 17:
-            mesh.rotation.y = event.data[2]/127 * 2 * Math.PI
+            applyToAll(function(i){
+              meshes[i].rotation.y = event.data[2]/127 * 2 * Math.PI
+            });
             break;
           case 18:
-            mesh.rotation.z = event.data[2]/127 * 2 * Math.PI
+            applyToAll(function(i){
+              meshes[i].rotation.z = event.data[2]/127 * 2 * Math.PI
+            });
             break;
           //scale
           case 19:
-            mesh.scale.x = event.data[2]/127 * 100
-            mesh.scale.y = event.data[2]/127 * 100
-            mesh.scale.z = event.data[2]/127 * 100
+            applyToAll(function(i){
+              meshes[i].scale.x = event.data[2]/127 * 100
+              meshes[i].scale.y = event.data[2]/127 * 100
+              meshes[i].scale.z = event.data[2]/127 * 100
+            });
             break;
           //color
           case 21:
-            material.color.r = event.data[2]/127
+            applyToAll(function(i){
+              materials[i].color.r = event.data[2]/127
+            });
             break;
           case 22:
-            material.color.g = event.data[2]/127
+            applyToAll(function(i){
+              materials[i].color.g = event.data[2]/127
+            });
             break;
           case 23:
-            material.color.b = event.data[2]/127
+            applyToAll(function(i){
+              materials[i].color.b = event.data[2]/127
+            });
+            break;
+          case 41:
+            applyToAll(function(i){
+              meshes[i].position.x = 300 * ( 2.0 * Math.random() - 1.0 );
+              meshes[i].position.y = 300 * ( 2.0 * Math.random() - 1.0 );
+              meshes[i].position.z = 300 * ( 2.0 * Math.random() - 1.0 );
+            });
             break;
         }
       }
