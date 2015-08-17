@@ -8,9 +8,9 @@
           scene = new THREE.Scene();
 
           camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
-          camera.position.z = 1000;
+          camera.position.z = 500;
 
-          geometry = new THREE.BoxGeometry( 200, 200, 200 );
+          geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
 
           material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
 
@@ -28,9 +28,9 @@
           lights[1] = new THREE.PointLight( 0xffffff, 1, 0 );
           lights[2] = new THREE.PointLight( 0xffffff, 1, 0 );
 
-          lights[0].position.set( 0, 200, 0 );
-          lights[1].position.set( 100, 200, 100 );
-          lights[2].position.set( -100, -200, -100 );
+          lights[0].position.set( 0, 1000, 0 );
+          lights[1].position.set( 500, 1000, 500 );
+          lights[2].position.set( -500, -200, -500 );
 
           scene.add( lights[0] );
           scene.add( lights[1] );
@@ -93,6 +93,12 @@
             break;
           case 18:
             mesh.rotation.z = event.data[2]/127 * 2 * Math.PI
+            break;
+          //scale
+          case 19:
+            mesh.scale.x = event.data[2]/127 * 100
+            mesh.scale.y = event.data[2]/127 * 100
+            mesh.scale.z = event.data[2]/127 * 100
             break;
           //color
           case 21:
