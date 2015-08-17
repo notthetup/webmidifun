@@ -1,35 +1,113 @@
+<head>
+  <script src='three.js'></script>
+  <script>
+      var scene, camera, renderer;
+      var geometry, material, mesh;
 
-<script type="text/javascript">
-    window.addEventListener('load', function() {
-      // patch up prefixes
+      function init() {
+          scene = new THREE.Scene();
 
-    if (navigator.requestMIDIAccess){
-      navigator.requestMIDIAccess().then( onMIDIInit, onMIDIReject );
-    }
-    else{
-      alert("No MIDI support present in your browser.  You're gonna have a bad time.")
-    }
+          camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+          camera.position.z = 1000;
 
-    function onMIDIInit(midi) {
-      midiAccess = midi;
+          geometry = new THREE.BoxGeometry( 200, 200, 200 );
 
-      var haveAtLeastOneDevice=false;
-      var inputs=midiAccess.inputs.values();
-      for ( var input = inputs.next(); input && !input.done; input = inputs.next()) {
-        input.value.onmidimessage = MIDIMessageEventHandler;
-        haveAtLeastOneDevice = true;
+          material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
+
+          mesh = new THREE.Mesh( geometry, material );
+          scene.add( mesh );
+
+          renderer = new THREE.WebGLRenderer();
+          renderer.setSize( window.innerWidth, window.innerHeight );
+
+          var ambientLight = new THREE.AmbientLight( 0x404040 );
+          scene.add( ambientLight );
+
+          var lights = [];
+          lights[0] = new THREE.PointLight( 0xffffff, 1, 0 );
+          lights[1] = new THREE.PointLight( 0xffffff, 1, 0 );
+          lights[2] = new THREE.PointLight( 0xffffff, 1, 0 );
+
+          lights[0].position.set( 0, 200, 0 );
+          lights[1].position.set( 100, 200, 100 );
+          lights[2].position.set( -100, -200, -100 );
+
+          scene.add( lights[0] );
+          scene.add( lights[1] );
+          scene.add( lights[2] );
+
+
+          document.body.appendChild( renderer.domElement );
+
       }
-      if (!haveAtLeastOneDevice)
-        alert("No MIDI input devices present.  You're gonna have a bad time.");
-    }
 
-    function onMIDIReject(err) {
-      alert("The MIDI system failed to start.  You're gonna have a bad time.");
-    }
+      function animate() {
 
-    function MIDIMessageEventHandler(event) {
-      console.log(event.data[1],event.data[2]);
-    }
-  });
+          requestAnimationFrame( animate );
 
-</script>
+          renderer.render( scene, camera );
+
+      }
+
+  </script>
+
+  <script type="text/javascript">
+      window.addEventListener('load', function() {
+        // patch up prefixes
+
+      if (navigator.requestMIDIAccess){
+        navigator.requestMIDIAccess().then( onMIDIInit, onMIDIReject );
+      }
+      else{
+        alert("No MIDI support present in your browser.  You're gonna have a bad time.")
+      }
+
+      function onMIDIInit(midi) {
+        init();
+        animate();
+
+        midiAccess = midi;
+
+        var haveAtLeastOneDevice=false;
+        var inputs=midiAccess.inputs.values();
+        for ( var input = inputs.next(); input && !input.done; input = inputs.next()) {
+          input.value.onmidimessage = MIDIMessageEventHandler;
+          haveAtLeastOneDevice = true;
+        }
+        if (!haveAtLeastOneDevice)
+          alert("No MIDI input devices present.  You're gonna have a bad time.");
+      }
+
+      function onMIDIReject(err) {
+        alert("The MIDI system failed to start.  You're gonna have a bad time.");
+      }
+
+      function MIDIMessageEventHandler(event) {
+        console.log(event.data[1],event.data[2]);
+        switch(event.data[1]) {
+          case 16:
+            mesh.rotation.x = event.data[2]/127 * 2 * Math.PI
+            break;
+          case 17:
+            mesh.rotation.y = event.data[2]/127 * 2 * Math.PI
+            break;
+          case 18:
+            mesh.rotation.z = event.data[2]/127 * 2 * Math.PI
+            break;
+          //color
+          case 21:
+            material.color.r = event.data[2]/127
+            break;
+          case 22:
+            material.color.g = event.data[2]/127
+            break;
+          case 23:
+            material.color.b = event.data[2]/127
+            break;
+        }
+      }
+    });
+
+  </script>
+</head>
+
