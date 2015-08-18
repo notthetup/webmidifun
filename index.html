@@ -1,7 +1,9 @@
 <head>
+	<script src="Looper.js"></script>
   <script src='three.js'></script>
   <script src='fly.js'></script>
   <script>
+  		"use strict";
       var scene, camera, renderer;
       var count = 300;
       var geometry, material, mesh;
@@ -90,8 +92,20 @@
   </script>
 
   <script type="text/javascript">
+
       window.addEventListener('load', function() {
-        // patch up prefixes
+
+      var context = new AudioContext();
+      var filter = context.createBiquadFilter();
+      var gain = context.createGain();
+      filter.frequency.value = 5000;
+      var looper = new Looper(context, ['drum.mp3', 'guitar.mp3', 'maracas.mp3', 'piano.mp3'], null, function(){
+      	looper.disconnect();
+      	looper.connect(gain);
+      	gain.connect(filter);
+      	filter.connect(context.destination);
+      	looper.start(0);
+      });
 
       if (navigator.requestMIDIAccess){
         navigator.requestMIDIAccess().then( onMIDIInit, onMIDIReject );
@@ -123,6 +137,27 @@
       function MIDIMessageEventHandler(event) {
         console.log(event.data[1],event.data[2]);
         switch(event.data[1]) {
+        	case 0:
+        		looper.playSpeed.value = event.data[2]/127 * 2;
+        		break;
+        	case 1:
+        		filter.frequency.value = event.data[2]/127 * 5000 + 50;
+        		break;
+        	case 2:
+        		gain.gain.value = event.data[2]/127;
+        		break;
+        	case 4:
+        		looper.multiTrackGain[0].value = event.data[2]/127;
+        		break;
+        	case 5:
+        		looper.multiTrackGain[1].value = event.data[2]/127;
+        		break;
+        	case 6:
+        		looper.multiTrackGain[2].value = event.data[2]/127;
+        		break;
+        	case 7:
+        		looper.multiTrackGain[3].value = event.data[2]/127;
+        		break;
           case 16:
             applyToAll(function(i){
               meshes[i].rotation.x = event.data[2]/127 * 2 * Math.PI
